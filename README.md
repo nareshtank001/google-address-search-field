@@ -9,7 +9,7 @@ The GoogleAddressSearchField extension for Sencha Touch 2.x extends Ext.field.Te
 	
 add google api link in index.html
 
-<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
 
 
 Add a requires to GoogleAddressSearchField in your app.js file (or the direct view that uses it)
