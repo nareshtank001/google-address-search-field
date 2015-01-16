@@ -3,11 +3,13 @@
 <b>Google Address Search Field Description</b>
 
 The GoogleAddressSearchField extension for Sencha Touch 2.x extends Ext.field.Text and provides the ability to search address from google.
+It's look like auto suggest dropdown for address from google.
+When user type in field it's open pop-up window with search result and on select address from list it will be set as value in field.
 
 
 <b>Installation</b>
 	
-add google api link in index.html
+add google api script in index.html
 
 	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3.exp&libraries=places"></script>
 
