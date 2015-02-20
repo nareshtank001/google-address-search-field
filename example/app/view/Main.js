@@ -20,7 +20,10 @@ Ext.define('GoogleAddressSearchField.view.Main', {
                	
                		xtype: 'googleaddresssearchfield',
                		labelAlign: 'top',
-               		label: 'Google Address Search'
+               		label: 'Google Address Search',
+               		store : Ext.create('Ext.data.Store', {
+                        fields : ['description']
+                    })
                	}
                ]
             }

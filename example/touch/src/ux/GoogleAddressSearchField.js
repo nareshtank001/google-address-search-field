@@ -1,106 +1,119 @@
 Ext.define('Ext.ux.GoogleAddressSearchField', {
-	extend: 'Ext.field.Text',
+    extend : 'Ext.field.Text',
+    xtype : 'googleaddresssearchfield',
 
-	xtype: 'googleaddresssearchfield',
-	requires: ['Ext.Panel','Ext.dataview.List','Ext.form.FieldSet'],
+    requires : [
+        'Ext.Panel',
+        'Ext.dataview.List'
+    ],
 
-	config: {
-		listeners: {
-			scope:this,
-			keyup: 'onKeyUp'
-		}
-	},
+    config : {
+        autoSearchService : true,
+        itemTpl           : '{description}',
+        resultPanel       : null,
+        store             : null,
+        valueField        : 'description'
+    },
 
-	destroyPanel: false,
+    initialize : function() {
 
-	initialize: function(){
-		this.googleAutoSearchService = new google.maps.places.AutocompleteService();
-		this.callParent();
-		this.getComponent().on({
-			scope: this,
-			keyup: 'onKeyUp',
-			focus: 'addResultPanel'
-		});
-	},
+        var me = this;
 
-	addResultPanel: function() {
+        me.callParent();
 
-		var me = this;
-		this.destroyPanel = false;
-		this.resultPanel = Ext.create('Ext.Panel',{
-			modal: true,
-			hideOnMaskTap: true,
-			height: '180px',
-			width: '94%',
-			layout: 'fit',
-			margin: '-9px 0 0 0',
-			items: [
-				{
-					xtype: 'list',
-					itemHeight: 30,
-					itemTpl: '<div style="font-size: 13px">{description}</div>',
-					store: Ext.create("Ext.data.Store",{
-						fields: ['description']
-					}),
-					listeners: {
-						itemtap: function( list, index, item, record ) {
-							me.setValue( record.get('description'));
-							me.destroyPanel = true;
-							me.resultPanel.hide( );
-						}
-					}
-				}
-			],
-			listeners: {
-				hide: function(panel){
-					me.destroyResultPanel( panel, me)
-				}
-			}
-		});
+        me.getComponent().on({
+            scope : me,
+            keyup : 'onKeyUp',
+            focus : 'addResultPanel'
+        });
 
-		Ext.Viewport.add( me.resultPanel );
+    },
 
-	},
+    applyAutoSearchService : function(opts) {
 
-	destroyResultPanel: function( panel, field ) {
+        return new google.maps.places.AutocompleteService(opts);
 
-		if( field.destroyPanel ) {
-			panel.destroy();
-		}
+    },
 
-	},
+    addResultPanel : function() {
 
-	onKeyUp: function() {
+        var me    = this,
+            panel = Ext.create('Ext.Panel',{
+                modal         : true,
+                hideOnMaskTap : true,
+                height        : 180,
+                width         : '94%',
+                layout        : 'fit',
+                margin        : '-9px 0 0 0',
+                items         : [
+                    {
+                        xtype      : 'list',
+                        itemHeight : 30,
+                        itemTpl    : me.getItemTpl(),
+                        store      : me.getStore(),
+                        listeners  : {
+                            itemtap : function(list, index, item, record) {
+                                me.setValue(record.get(me.getValueField()));
 
-		this.destroyPanel = true;
+                                panel.hide();
+                            }
+                        }
+                    }
+                ]
+            });
 
-		if( this.resultPanel.isHidden( ) ) {
+        me.setResultPanel(panel);
 
-			this.resultPanel.showBy(this,'tc-bc' );
+        Ext.Viewport.add(panel);
 
-		}
+    },
 
-		var resultList = this.resultPanel.query('list')[0];
+    destroy : function() {
 
-		if(this.getValue().length > 0 ) {
+        var me    = this,
+            panel = this.getResultPanel();
 
-			this.googleAutoSearchService.getQueryPredictions({ input: this.getValue() }, function(result){
+        panel.destroy();
 
-				resultList.getStore().removeAll();
+        me.setResultPanel(null);
+        me.getAutoSearchService(null);
 
-				if(result) {
+        me.callParent();
 
-					resultList.getStore().add(result);
+    },
 
-				}
+    onKeyUp: function() {
 
-			});
+        var me          = this,
+            value       = me.getValue(),
+            resultPanel = me.getResultPanel(),
+            resultStore = me.getStore();
 
-		} else {
+        if (resultPanel.isHidden()) {
 
-			resultList.getStore().removeAll();
+            resultPanel.showBy(me, 'tc-bc');
 
-		}
+        }
 
-	}
+        if (value) {
+
+            me.getAutoSearchService().getQueryPredictions({ input : value }, function(result) {
+
+                resultStore.removeAll();
+
+                if (result) {
+
+                    resultStore.add(result);
+
+                }
+
+            });
+
+        } else {
+
+            resultStore.removeAll();
+
+        }
+
+    }
 });
